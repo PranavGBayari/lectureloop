@@ -135,7 +135,7 @@ server better than serverless functions.
 | Service | Root | Public path | Notes |
 | --- | --- | --- | --- |
 | `frontend` | `frontend/` | everything except `/api/*` | Next.js |
-| `backend` | `backend/` | `/api/*` | FastAPI. Vercel passes the original path through, so a service route strips `/api`; the backend's own routes are unchanged. |
+| `backend` | `backend/` | `/api/*` | FastAPI. Vercel passes the original path through (`/api/health` arrives as `/api/health`), so the backend itself strips a leading `/api` (`StripApiPrefix` in `main.py`, HTTP and WebSocket) and every route answers at both `/path` and `/api/path`. |
 
 No service calls another on the server side (the browser calls the backend), so there are no
 bindings. Because both are on one domain there is no CORS. In a production build the frontend calls
@@ -164,8 +164,8 @@ Set these on the Vercel project (Settings, Environment Variables): `ANTHROPIC_AP
   browser with a message. Elsewhere the limit is 20 MB.
 - The Vercel CLI could not be run end to end on the Windows machine this was built on (a symlink
   permission error installing its builders), so the multi-service config was checked only as far as
-  the CLI detecting both services. The routing was checked with a stand-in proxy that strips `/api`
-  the same way.
+  the CLI detecting both services. The routing was checked with a stand-in proxy that leaves `/api`
+  on, as Vercel does.
 
 ### Option B: backend on Render, frontend on Vercel (or elsewhere)
 

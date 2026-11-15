@@ -67,6 +67,34 @@ async def lifespan(_: FastAPI):
     supervisor.reset()
 
 
+class StripApiPrefix:
+    """Accept every route both as /path and as /api/path (HTTP and WebSocket).
+
+    On Vercel the backend is public at /api/* and the request reaches it with the prefix still on;
+    locally and on Render it is served at the root. Stripping a leading "/api" here means the same
+    routes work in both places. Only a whole leading segment is stripped: /api/health and /api
+    match, /apixyz does not. Pure ASGI (not BaseHTTPMiddleware) so WebSocket scopes pass through.
+    """
+
+    PREFIX = "/api"
+
+    def __init__(self, app) -> None:
+        self.app = app
+
+    async def __call__(self, scope, receive, send) -> None:
+        if scope["type"] in ("http", "websocket"):
+            path: str = scope["path"]
+            if path == self.PREFIX or path.startswith(self.PREFIX + "/"):
+                scope = dict(scope)  # never mutate the server's scope in place
+                scope["path"] = path[len(self.PREFIX):] or "/"
+                raw = scope.get("raw_path")
+                if raw:  # keep the raw (still percent-encoded) path in step with the decoded one
+                    prefix = self.PREFIX.encode()
+                    if raw == prefix or raw.startswith(prefix + b"/") or raw.startswith(prefix + b"?"):
+                        scope["raw_path"] = raw[len(prefix):] or b"/"
+        await self.app(scope, receive, send)
+
+
 app = FastAPI(title="LectureLoop API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
@@ -75,6 +103,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# Added last, so it is outermost: the prefix is gone before CORS or routing look at the path.
+app.add_middleware(StripApiPrefix)
 
 ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     400: {"model": ErrorResponse},
