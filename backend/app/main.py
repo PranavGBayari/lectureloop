@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import io
 import logging
 import re
@@ -57,6 +58,11 @@ log = logging.getLogger("lectureloop")
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     await db.init_store()
+    if os.environ.get("VERCEL") and getattr(db.get_store(), "name", "") == "memory":
+        # Every function instance would have its own private store: sessions, students and answers would
+        # vanish between requests. A real deployment needs MongoDB.
+        log.error("Running on Vercel with the in-memory store: set MONGODB_URI, or data will not persist "
+                  "between function instances.")
     yield
     supervisor.reset()
 

@@ -27,8 +27,25 @@ export type ErrorCode = S["ErrorCode"];
 export type WSMessage = S["WSMessage"];
 export type WSType = WSMessage["type"];
 
-export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
-export const WS_URL = API_URL.replace(/^http/, "ws");
+// Where the browser reaches the backend (every call is browser -> backend; the frontend has no
+// server-side calls to it). NEXT_PUBLIC_API_URL wins when set and non-empty. Otherwise:
+//   - a production build uses "/api": on Vercel the backend service is public at /api on the same
+//     domain (see vercel.json), so there is no CORS and no second hostname;
+//   - `npm run dev` uses the FastAPI dev server on :8000.
+// Under `vercel dev`, set NEXT_PUBLIC_API_URL=/api in frontend/.env.local.
+export const API_URL = (
+  process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "/api" : "http://localhost:8000")
+).replace(/\/$/, "");
+
+/** WebSocket base URL for API_URL. Browser only: a same-origin path like "/api" needs the page's host. */
+export function wsBase(): string {
+  if (/^https?:\/\//.test(API_URL)) return API_URL.replace(/^http/, "ws");
+  const scheme = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${scheme}//${window.location.host}${API_URL}`;
+}
+
+/** Largest slide PDF the deployment accepts: Vercel Functions reject request bodies over 4.5 MB. */
+export const MAX_SLIDES_BYTES = API_URL.startsWith("/") ? 4_400_000 : 20_000_000;
 
 export class ApiError extends Error {
   constructor(public code: ErrorCode | "network_error", message: string, public status = 0) {
@@ -81,6 +98,10 @@ export const api = {
     request<{ accepted: number }>(`/sessions/${id}/transcript`, { method: "POST", body: JSON.stringify({ chunks }) }),
   uploadSlides: async (id: string, file: File) => {
     // multipart: let the browser set the Content-Type boundary, so this bypasses request()
+    if (file.size > MAX_SLIDES_BYTES) {
+      const mb = (n: number) => (n / 1_000_000).toFixed(1);
+      throw new ApiError("invalid_input", `That PDF is ${mb(file.size)} MB; the limit here is ${mb(MAX_SLIDES_BYTES)} MB.`);
+    }
     const body = new FormData();
     body.append("file", file);
     let res: Response;

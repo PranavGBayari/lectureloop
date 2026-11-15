@@ -1,4 +1,4 @@
-"""Red-team suite: runs every case in tests/redteam.jsonl through the real guardrail code.
+"""Red-team suite: runs every case in app/data/redteam.jsonl through the real guardrail code.
 
 Case kinds:
 - injection: {"text"}                           expect "block" or "allow"
@@ -17,7 +17,7 @@ from pathlib import Path
 from .guardrails import injection, leak
 from .models import Question, QuestionKind, RedteamCase, RedteamReport
 
-CASES_PATH = Path(__file__).resolve().parents[1] / "tests" / "redteam.jsonl"
+CASES_PATH = Path(__file__).resolve().parent / "data" / "redteam.jsonl"  # inside app/ so it deploys with it
 _cached: RedteamReport | None = None
 
 

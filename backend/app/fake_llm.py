@@ -1,6 +1,6 @@
 """A scripted stand-in for the Anthropic client. Only used when LLM_PROVIDER=fake.
 
-It knows the demo lecture (demo/lecture_transcript.json) well enough to segment it, write grounded
+It knows the demo lecture (app/data/lecture_transcript.json) well enough to segment it, write grounded
 questions, grade by keyword and stream tutor messages, so tests and UI work run without an API key
 or network. It mimics the SDK surface that llm.py uses: messages.create / messages.stream and the
 beta equivalents.

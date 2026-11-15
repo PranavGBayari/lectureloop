@@ -4,9 +4,6 @@ services:
     env_file: .env
     environment:
       CORS_ORIGINS: http://localhost:3000
-      DEMO_TRANSCRIPT: /demo/lecture_transcript.json
-    volumes:
-      - ./demo:/demo:ro
     ports:
       - "8000:8000"
   frontend:

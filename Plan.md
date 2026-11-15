@@ -191,6 +191,7 @@ Each agent is a Python class with one job, a system prompt in `backend/app/promp
 - A borderline injection (words like "ignore" or "grade" in an otherwise normal answer) goes to the Haiku classifier. If the classifier fails, the answer is let through: it only ever reaches the grader as data inside `<student_answer>` tags. If the leak classifier fails, the message is treated as a leak and replaced with the safe canned one.
 - A weak concept needs at least 2 graded answers as well as the 30% share, so one early wrong answer in a small room does not page the lecturer.
 - `events` and `answers` carry `session_id`, so the ops page is per lecture.
+- Deployment on Vercel Services: `vercel.json` defines `frontend` (Next.js, public at `/`) and `backend` (FastAPI, public at `/api/*`, with the prefix stripped by a service `request.path` route). No server-side service-to-service calls exist, so no bindings. The demo lecture and red-team cases moved into `backend/app/data/` so they ship with the backend service. A production frontend build calls `/api` by default. See the README for what Vercel functions mean for this app's in-memory state.
 - ElevenLabs Scribe v2 Realtime is the live engine when `ELEVENLABS_API_KEY` is set; Web Speech is the fallback. `GET /health` gained `elevenlabs: bool`, `GET /sessions/{id}/scribe-token` returns `{token}` (the key never leaves the server), and `ErrorCode` gained `not_configured` and `upstream_error`.
 - Not built: the fallback to slide-based questions when transcription drops.
 
@@ -215,7 +216,7 @@ The supervisor is a plain async loop (plan, act, observe), not a framework. It k
 6. **Mode policy:** code, not the model, decides the mode from `mastery` (thresholds in the data model section). The model only gets told the mode.
 7. **Escalation triggers:** grader confidence below 0.6, the same student wrong 3 times on one concept (a circular impasse), or a concept with average mastery below 0.45 and at least 30% of students answering. These go to the lecturer or TA queue.
 
-**Testing:** keep `backend/tests/redteam.jsonl` with about 20 injection and leak attempts, and run it on every change. The pass rate goes on the observability panel and in the pitch.
+**Testing:** keep `backend/app/data/redteam.jsonl` with about 20 injection and leak attempts, and run it on every change. The pass rate goes on the observability panel and in the pitch.
 
 ## Frontend screens
 
@@ -252,14 +253,14 @@ lectureloop/
       mastery.py         # BKT update + mode policy
       db.py              # Motor (async MongoDB) client; in-memory fallback
       ws.py              # connection manager, broadcast
-    tests/               # test_guardrails.py, test_mastery.py, redteam.jsonl
+    data/                # lecture_transcript.json, redteam.jsonl (inside app/ so they deploy with it)
+    tests/               # test_guardrails.py, test_mastery.py, ...
     pyproject.toml
   frontend/
     app/                 # /, /s/[sessionId], /l/[sessionId], /l/[sessionId]/ops
     components/          # QuestionCard, ConceptTimeline, MasteryBar, Heatmap, EscalationInbox, Avatar
     lib/                 # useSession.ts (WS), api.ts (generated types)
   demo/
-    lecture_transcript.json   # timestamped chunks of a ~3-minute lecture
     slides.pdf
     seed_students.py          # spawns ~40 simulated students so the heatmap looks real
   docker-compose.yml
@@ -291,7 +292,7 @@ This assumes about 20 working hours to submission, counted from H0 (when coding 
 
 **Phase 2, H2–H6: the core loop on replayed lecture.** Gate: replaying the demo transcript produces concepts, questions, grades and feedback in the student view.
 
-- [x] Write `demo/lecture_transcript.json`: a 3-minute lecture with 4 or 5 concepts and one clear prerequisite link (for example type constructors, then functors, then `fmap` laws, then applicatives).
+- [x] Write `backend/app/data/lecture_transcript.json`: a 3-minute lecture with 4 or 5 concepts and one clear prerequisite link (for example type constructors, then functors, then `fmap` laws, then applicatives).
 - [x] Replay endpoint and speed control.
 - [x] Segmenter agent and `concept_closed` events.
 - [x] Question writer, grader and tutor agents, with streamed feedback.

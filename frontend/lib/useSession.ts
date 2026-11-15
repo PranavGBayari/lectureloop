@@ -1,7 +1,7 @@
 "use client";
 // Native WebSocket client with auto-reconnect. Every message is {type, payload, ts}.
 import { useCallback, useEffect, useRef, useState } from "react";
-import { WS_URL, type WSMessage, type WSType } from "./api";
+import { wsBase, type WSMessage, type WSType } from "./api";
 
 export type ConnStatus = "connecting" | "connected" | "reconnecting" | "closed" | "error";
 
@@ -20,7 +20,7 @@ export function useSession(path: string | null, onMessage: Handler) {
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const open = () => {
-      const ws = new WebSocket(`${WS_URL}${path}`);
+      const ws = new WebSocket(`${wsBase()}${path}`);
       wsRef.current = ws;
       setStatus(retry === 0 ? "connecting" : "reconnecting");
       ws.onopen = () => {

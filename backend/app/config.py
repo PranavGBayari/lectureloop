@@ -18,7 +18,9 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000"
     llm_timeout_s: float = 20.0
     llm_provider: str = "anthropic"  # anthropic | fake (scripted offline model for tests/UI work)
-    demo_transcript: str = "../demo/lecture_transcript.json"
+    # Relative paths resolve against the backend directory. The file lives inside it (app/data) so it
+    # ships with the service when only backend/ is deployed (Vercel Services, Docker, Render).
+    demo_transcript: str = "app/data/lecture_transcript.json"
     min_concept_s: float = 45.0  # segmenter guard: minimum seconds per concept
 
 
