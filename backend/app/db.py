@@ -120,11 +120,27 @@ class MongoStore:
 
 
 _store: Store | None = None
+# Why the in-memory store is in use (None when MongoDB is). Shown by GET /health so a deployment that
+# silently lost its database is easy to diagnose.
+storage_note: str | None = None
+
+
+def _explain(e: Exception) -> str:
+    """A short, secret-free reason a MongoDB connection failed (the URI contains the password)."""
+    name = type(e).__name__
+    if name == "ServerSelectionTimeoutError":
+        return ("MongoDB did not answer: check the cluster is running and that Atlas Network Access allows "
+                "the server's IP (Vercel uses changing IPs, so allow 0.0.0.0/0)")
+    if name in ("OperationFailure", "AuthenticationFailed") or "auth" in str(e).lower():
+        return "MongoDB rejected the credentials: check the username and password in MONGODB_URI"
+    if name in ("ConfigurationError", "InvalidURI"):
+        return "MONGODB_URI is not a valid MongoDB connection string"
+    return f"could not connect to MongoDB ({name})"
 
 
 async def init_store() -> Store:
     """Connect to MongoDB if configured; fall back to memory if it's empty or unreachable."""
-    global _store
+    global _store, storage_note
     s = get_settings()
     if s.mongodb_uri:
         try:
@@ -132,10 +148,14 @@ async def init_store() -> Store:
             await mongo.ping()
             await mongo.ensure_indexes()
             _store = mongo
+            storage_note = None
             log.info("storage: MongoDB (%s)", s.mongodb_db)
             return _store
         except Exception as e:  # noqa: BLE001 - any connect failure means fall back
-            log.warning("storage: MongoDB unreachable (%s); using in-memory store", e)
+            storage_note = _explain(e)
+            log.warning("storage: %s; using in-memory store (%s)", storage_note, type(e).__name__)
+    else:
+        storage_note = "MONGODB_URI is not set"
     _store = MemoryStore()
     log.info("storage: in-memory")
     return _store

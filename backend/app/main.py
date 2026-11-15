@@ -171,11 +171,23 @@ async def _get_student(student_id: str) -> Student | None:
 async def health() -> dict[str, Any]:
     s = get_settings()
     return {"status": "ok", "storage": getattr(db.get_store(), "name", "unknown"), "llm": s.llm_provider,
-            "elevenlabs": scribe.configured()}  # whether the lecturer can use ElevenLabs live transcription
+            "elevenlabs": scribe.configured(),  # whether the lecturer can use ElevenLabs live transcription
+            "storage_note": db.storage_note}  # why in-memory storage is in use, or null (MongoDB is connected)
+
+
+def _require_shared_store() -> None:
+    """On Vercel an in-memory store is private to one function instance: a session created on one
+    instance is "not found" on the next. Refuse with the real reason instead of failing mysteriously."""
+    if os.environ.get("VERCEL") and getattr(db.get_store(), "name", "") == "memory":
+        raise APIError(503, ErrorCode.not_configured,
+                       "This deployment has no shared database, so sessions would vanish between requests "
+                       f"({db.storage_note or 'MongoDB is not connected'}). Set MONGODB_URI to a MongoDB Atlas "
+                       "connection string in the Vercel project settings, then redeploy.")
 
 
 @app.post("/sessions", response_model=CreateSessionResponse, responses=ERROR_RESPONSES)
 async def create_session(body: CreateSessionRequest) -> CreateSessionResponse:
+    _require_shared_store()
     store = db.get_store()
     session = Session(title=body.title.strip())
     while await store.find_one("sessions", {"join_code": session.join_code}):
@@ -271,6 +283,7 @@ async def end_session(session_id: str) -> SessionPublic:
 
 @app.post("/join", response_model=JoinResponse, responses=ERROR_RESPONSES)
 async def join(body: JoinRequest) -> JoinResponse:
+    _require_shared_store()
     store = db.get_store()
     code = body.join_code.strip().upper()
     doc = await store.find_one("sessions", {"join_code": code})

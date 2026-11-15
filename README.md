@@ -146,6 +146,20 @@ Set these on the Vercel project (Settings, Environment Variables): `ANTHROPIC_AP
 `NEXT_PUBLIC_API_URL`. Locally, `npx vercel dev` runs both services together; set
 `NEXT_PUBLIC_API_URL=/api` in `frontend/.env.local` for it.
 
+**If creating a session works but joining says "no such session" (or similar)**, the database is
+not connected: each function instance is using its own private in-memory store. Open
+`https://<your domain>/api/health` and read `storage` and `storage_note`:
+
+| `/api/health` says | Meaning and fix |
+| --- | --- |
+| `"storage": "mongodb"`, `"storage_note": null` | Connected. The problem is elsewhere. |
+| `"storage_note": "MONGODB_URI is not set"` | Add `MONGODB_URI` (an Atlas connection string) in Vercel, Settings, Environment Variables, for the right environment (Production or Preview), then redeploy. |
+| `"storage_note": "MongoDB did not answer: ..."` | In Atlas, Network Access, allow `0.0.0.0/0` (Vercel's IPs change), and check the cluster is running. |
+| `"storage_note": "MongoDB rejected the credentials: ..."` | Fix the username and password in the connection string (URL-encode special characters in the password). |
+
+On Vercel the backend now refuses to create or join sessions while it has no shared database,
+and says why, instead of failing later with "not found".
+
 **Vercel limits that affect this app**
 
 - **Memory is per function instance.** Without `MONGODB_URI` each instance has its own private store
