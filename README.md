@@ -48,8 +48,23 @@ cd frontend && npm run dev
 7. Footer, **Ops & review**: guardrail counters, red-team pass rate, latency, and the TA queue
    (mark a low-confidence grade correct and that student moves on).
 
-Live mode: instead of the replay, press **Go live** in the lecturer footer (Chrome or Edge) and
-talk. **Slides** uploads a PDF whose text grounds the questions alongside the transcript.
+Live mode: instead of the replay, press **Go live** in the lecturer footer and talk. The footer
+shows the engine in use, "ElevenLabs" or "browser", next to the LIVE indicator, and your words as they
+are spoken. **Slides** uploads a PDF whose text grounds the questions alongside the transcript.
+
+### Live transcription engines
+
+| Engine | When | Notes |
+| --- | --- | --- |
+| ElevenLabs Scribe v2 Realtime | `ELEVENLABS_API_KEY` is set (`GET /health` reports `"elevenlabs": true`) | Works in any browser. The backend swaps the key for a single-use token (`GET /sessions/{id}/scribe-token`), so the key never reaches the browser. |
+| Browser Web Speech API | no ElevenLabs key, or ElevenLabs cannot start | Chrome and Edge only. |
+
+If ElevenLabs cannot start for a reason other than the microphone (rejected key, no network), the
+lecture falls back to the browser engine and says so. A dropped ElevenLabs connection is retried with
+a fresh token (after 1, 2, 4, 8 and 16 seconds), then gives up with a message. A denied microphone is
+reported once and not retried. Words are committed after a one-second pause, or every 20 seconds if
+the lecturer never pauses. For regional data residency, set `NEXT_PUBLIC_ELEVENLABS_WS_URL` on the
+frontend (for example `wss://api.eu.residency.elevenlabs.io`) and use a key from that region.
 
 ### Offline mode
 
@@ -93,7 +108,8 @@ frontend/
                  /l/[sessionId]/ops (guardrails + review queue), /s/[sessionId] (student)
   components/    companion/ (Prof. Cube 3D avatar, pills, mastery ring), timeline, badges
   lib/           api.ts (typed REST client), api-types.ts (generated), useSession.ts (WS hook),
-                 useLiveTranscript.ts (Web Speech live mode)
+                 useLiveTranscript.ts (Web Speech engine), useScribeTranscript.ts (ElevenLabs
+                 engine), useLiveEngine.tsx (picks one; loads the ElevenLabs SDK on demand)
 demo/
   lecture_transcript.json   the replayed lecture
   seed_students.py          simulated room
@@ -126,12 +142,20 @@ Not done yet; it needs the team's accounts. The config is ready:
    insight recap and the two Haiku classifiers have only ever run against the scripted model.
 2. Run `cd backend && uv run python -m app.redteam` with the key set. With real Haiku the
    borderline cases are judged by the model, so the pass rate may differ from the scripted 24/24.
-3. Check the microphone live mode in the room you will present in (it needs Chrome or Edge and a
-   network connection).
+3. Put an `ELEVENLABS_API_KEY` in `.env`, press **Go live**, and check that the footer says
+   "ElevenLabs" and your words appear. The SDK's current docs mention a newer model id,
+   `scribe_v3_live`; the installed SDK (1.22.1) only knows `scribe_v2_realtime`, which is what this
+   uses (`SCRIBE_MODEL` in `frontend/lib/useScribeTranscript.ts`). If your account has access to
+   the newer model, upgrading `@elevenlabs/react` and changing that constant is the whole change.
+4. Check the microphone in the room you will present in. Without ElevenLabs it needs Chrome or Edge
+   and a network connection.
 
 ## Known gaps
 
 - The plan's fallback to slide-based questions when transcription drops is not built.
-- ElevenLabs speech-to-text (stretch) is not built; live mode uses the browser's Web Speech API.
+- ElevenLabs live transcription has never talked to the real ElevenLabs service (no key was
+  available). The token endpoint is tested against a mock, and the browser side against a stand-in
+  server that speaks the same WebSocket protocol, including a dropped connection. Real accuracy on
+  technical vocabulary, and whether your plan includes Scribe Realtime, are untested.
 - Lecture runtime state (open concept, each student's current question) is in memory. Stored data
   survives a backend restart; a lecture in progress does not resume its queues.

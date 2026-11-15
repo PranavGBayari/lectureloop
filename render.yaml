@@ -14,6 +14,8 @@ services:
         sync: false
       - key: MONGODB_URI   # MongoDB Atlas connection string; leave unset for in-memory
         sync: false
+      - key: ELEVENLABS_API_KEY  # optional: ElevenLabs live transcription; unset = browser Web Speech only
+        sync: false
       - key: CORS_ORIGINS  # the Vercel URL, e.g. https://lectureloop.vercel.app
         sync: false
       - key: MODEL_SMART

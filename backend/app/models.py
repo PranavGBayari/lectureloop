@@ -85,6 +85,8 @@ class ErrorCode(StrEnum):
     llm_timeout = "llm_timeout"
     llm_bad_output = "llm_bad_output"
     not_found = "not_found"
+    not_configured = "not_configured"  # an optional integration (e.g. ElevenLabs) has no API key
+    upstream_error = "upstream_error"  # a third-party service failed or refused
 
 
 # ---------------------------------------------------------------- collections
@@ -195,6 +197,12 @@ class CreateSessionRequest(BaseModel):
 class CreateSessionResponse(BaseModel):
     id: str
     join_code: str
+
+
+class ScribeTokenResponse(BaseModel):
+    """A single-use ElevenLabs realtime Scribe token (15 minutes, consumed on connect). Never the API key."""
+
+    token: str
 
 
 class SlidesResponse(BaseModel):

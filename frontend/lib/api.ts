@@ -16,6 +16,7 @@ export type OpsResponse = S["OpsResponse"];
 export type RecapOut = S["RecapOut"];
 export type RoomScoreOut = S["RoomScoreOut"];
 export type Verdict = S["Verdict"];
+export type Health = { status: string; storage: string; llm: string; elevenlabs: boolean };
 export type ResolveAction = S["ResolveEscalationRequest"]["action"];
 export type Concept = S["Concept"];
 export type StudentStatus = S["StudentStatusOut"];
@@ -54,6 +55,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  health: () => request<Health>("/health"),
+  /** A single-use ElevenLabs Scribe token (15 min, consumed on connect). The API key never leaves the server. */
+  scribeToken: (id: string) => request<{ token: string }>(`/sessions/${id}/scribe-token`, { cache: "no-store" }),
   createSession: (title: string) =>
     request<CreateSessionResponse>("/sessions", { method: "POST", body: JSON.stringify({ title }) }),
   getSession: (id: string) => request<SessionPublic>(`/sessions/${id}`),

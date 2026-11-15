@@ -19,7 +19,7 @@ import {
   type SessionPublic,
   type WSMessage,
 } from "@/lib/api";
-import { useLiveTranscript } from "@/lib/useLiveTranscript";
+import { ENGINE_LABEL, useLiveEngine } from "@/lib/useLiveEngine";
 import { useSession, type ConnStatus } from "@/lib/useSession";
 
 const CARD = "rounded-[12px] border border-line bg-panel";
@@ -61,7 +61,7 @@ export default function LecturerPage() {
   const [escalations, setEscalations] = useState<Escalation[]>([]);
   const [roomScore, setRoomScore] = useState<number | null>(null);
   const [slides, setSlides] = useState<string | null>(null);
-  const live = useLiveTranscript(sessionId);
+  const live = useLiveEngine(sessionId);
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -226,6 +226,7 @@ export default function LecturerPage() {
         </div>
       </main>
 
+      {live.host}
       <Footer
         status={status}
         ended={ended}
@@ -563,7 +564,7 @@ function Footer({
   opsHref,
   toReview,
 }: {
-  live: ReturnType<typeof useLiveTranscript>;
+  live: ReturnType<typeof useLiveEngine>;
   slides: string | null;
   onSlides: (f: File) => void;
   opsHref: string;
@@ -595,7 +596,7 @@ function Footer({
       <p data-testid="conn-status" className="whitespace-pre">
         <span className={status === "connected" ? "" : "text-amber"}>{health}</span>
         {"   /   "}
-        {live.live ? "microphone live" : replay?.running ? "replaying lecture" : "transcript feed"}
+        {live.live ? `microphone live (${ENGINE_LABEL[live.engine]})` : replay?.running ? "replaying lecture" : "transcript feed"}
       </p>
 
       <div className="flex flex-wrap items-center gap-3" aria-label="Demo replay">
@@ -636,8 +637,14 @@ function Footer({
         {live.supported && (
           <button
             onClick={live.live ? live.stop : live.start}
-            disabled={ended || started}
-            title={started ? "This session is using the demo replay" : "Transcribe your microphone (Chrome or Edge)"}
+            disabled={ended || started || live.loading}
+            title={live.loading ? "Loading ElevenLabs…" : 
+              started
+                ? "This session is using the demo replay"
+                : live.engine === "elevenlabs"
+                  ? "Transcribe your microphone with ElevenLabs Scribe"
+                  : "Transcribe your microphone with the browser (Chrome or Edge)"
+            }
             className={`rounded-[8px] border px-3 py-[7px] hover:bg-panel disabled:opacity-40 ${
               live.live ? "border-coral text-coral" : "border-line text-fg"
             }`}
@@ -645,7 +652,15 @@ function Footer({
             {live.live ? "■ Stop microphone" : "● Go live"}
           </button>
         )}
-        {live.live && live.lastText && <span className="max-w-[220px] truncate">“{live.lastText}”</span>}
+        {live.live && (
+          <span data-testid="live-indicator" className="inline-flex items-center gap-2">
+            <span className={`animate-pulse ${live.reconnecting ? "text-amber" : "text-coral"}`}>●</span>
+            <span className="text-fg">{live.reconnecting ? "reconnecting…" : "LIVE"}</span>
+            <span data-testid="live-engine" className="rounded-full border border-line px-2 py-[2px] text-[10px]">
+              {ENGINE_LABEL[live.engine]}
+            </span>
+          </span>
+        )}
         <input
           ref={fileRef}
           type="file"
@@ -666,6 +681,19 @@ function Footer({
         </button>
         {error && <span className="text-coral">{error}</span>}
       </div>
+
+      {live.live && (
+        // Words appear here as they are spoken (ElevenLabs sends partial text before a segment is committed).
+        <p data-testid="live-partial" className="order-last basis-full truncate text-[12px] text-muted">
+          {live.partial ? (
+            <span className="text-fg">“{live.partial}”</span>
+          ) : live.lastText ? (
+            <span>last segment: “{live.lastText}”</span>
+          ) : (
+            "Listening…"
+          )}
+        </p>
+      )}
 
       <Link href={opsHref} className="ml-auto whitespace-pre hover:text-fg" data-testid="ops-link">
         {"Ops & review"}

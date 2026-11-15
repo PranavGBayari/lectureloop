@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=("../.env", ".env"), extra="ignore")
 
     anthropic_api_key: str = ""
+    elevenlabs_api_key: str = ""  # empty = ElevenLabs live transcription off; the browser's Web Speech is used
     mongodb_uri: str = ""  # empty = in-memory store
     mongodb_db: str = "lectureloop"
     model_smart: str = "claude-sonnet-5-5"

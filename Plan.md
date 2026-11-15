@@ -191,7 +191,8 @@ Each agent is a Python class with one job, a system prompt in `backend/app/promp
 - A borderline injection (words like "ignore" or "grade" in an otherwise normal answer) goes to the Haiku classifier. If the classifier fails, the answer is let through: it only ever reaches the grader as data inside `<student_answer>` tags. If the leak classifier fails, the message is treated as a leak and replaced with the safe canned one.
 - A weak concept needs at least 2 graded answers as well as the 30% share, so one early wrong answer in a small room does not page the lecturer.
 - `events` and `answers` carry `session_id`, so the ops page is per lecture.
-- Not built: the fallback to slide-based questions when transcription drops, and ElevenLabs speech-to-text.
+- ElevenLabs Scribe v2 Realtime is the live engine when `ELEVENLABS_API_KEY` is set; Web Speech is the fallback. `GET /health` gained `elevenlabs: bool`, `GET /sessions/{id}/scribe-token` returns `{token}` (the key never leaves the server), and `ErrorCode` gained `not_configured` and `upstream_error`.
+- Not built: the fallback to slide-based questions when transcription drops.
 
 **Phase 2 decisions.** The first question on a concept is generated once per (concept, mode, difficulty) and shared, so 250 students cost three Sonnet calls, not 250; follow-ups and trace-back checks are per student. The grounding check (guardrail 4) shipped in Phase 2 because "no source, no question" is a ground rule. Mode policy adds hysteresis: leave support at `p_known >= 0.6`, leave challenge below 0.6. `LLM_PROVIDER=fake` swaps in a scripted model that knows the demo lecture, for tests and offline UI work.
 
@@ -318,7 +319,7 @@ This assumes about 20 working hours to submission, counted from H0 (when coding 
 
 - [x] TA review queue with override and resume.
 - [x] Observability page.
-- [x] Live mode with Web Speech API (Chrome and Edge). ElevenLabs speech-to-text not done.
+- [x] Live mode with Web Speech API (Chrome and Edge), and ElevenLabs Scribe v2 Realtime when a key is set (not yet run against the real service).
 - [x] Class challenge score.
 
 **Phase 7, H18–H20: freeze and rehearse.** Gate: two clean rehearsals under time.

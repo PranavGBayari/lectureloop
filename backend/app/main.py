@@ -9,14 +9,14 @@ import re
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI, File, Request, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, Request, Response, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from . import aggregate, db, supervisor
+from . import aggregate, db, scribe, supervisor
 from .config import get_settings
 from .llm import LLMError
 from .models import (
@@ -37,6 +37,7 @@ from .models import (
     ReplaySpeedRequest,
     ReplayStatus,
     ResolveEscalationRequest,
+    ScribeTokenResponse,
     Session,
     SessionPublic,
     SessionStatus,
@@ -74,6 +75,9 @@ ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     404: {"model": ErrorResponse},
     409: {"model": ErrorResponse},
     422: {"model": ErrorResponse},
+    502: {"model": ErrorResponse},
+    503: {"model": ErrorResponse},
+    504: {"model": ErrorResponse},
 }
 
 
@@ -128,9 +132,10 @@ async def _get_student(student_id: str) -> Student | None:
 # ---------------------------------------------------------------- REST
 
 @app.get("/health")
-async def health() -> dict[str, str]:
+async def health() -> dict[str, Any]:
     s = get_settings()
-    return {"status": "ok", "storage": getattr(db.get_store(), "name", "unknown"), "llm": s.llm_provider}
+    return {"status": "ok", "storage": getattr(db.get_store(), "name", "unknown"), "llm": s.llm_provider,
+            "elevenlabs": scribe.configured()}  # whether the lecturer can use ElevenLabs live transcription
 
 
 @app.post("/sessions", response_model=CreateSessionResponse, responses=ERROR_RESPONSES)
@@ -165,6 +170,20 @@ async def upload_slides(session_id: str, file: UploadFile = File(...)) -> Slides
         raise APIError(422, ErrorCode.invalid_input, f"file: not a readable PDF ({type(e).__name__})") from e
     await db.get_store().update_one("sessions", {"id": session_id}, {"slides_text": pages})
     return SlidesResponse(pages=len(pages))
+
+
+@app.get("/sessions/{session_id}/scribe-token", response_model=ScribeTokenResponse, responses=ERROR_RESPONSES)
+async def scribe_token(session_id: str, response: Response) -> ScribeTokenResponse:
+    """A single-use ElevenLabs Scribe token for the lecturer's microphone. The API key stays on the server."""
+    s = await _get_session(session_id)
+    if s.status == SessionStatus.ended:
+        raise APIError(409, ErrorCode.invalid_input, "This lecture has ended.")
+    try:
+        token = await scribe.create_token()
+    except scribe.ScribeError as e:
+        raise APIError(e.status, e.code, e.message) from e
+    response.headers["Cache-Control"] = "no-store"  # a token is consumed on use: never cache one
+    return ScribeTokenResponse(token=token)
 
 
 @app.post("/sessions/{session_id}/transcript", response_model=TranscriptResponse, responses=ERROR_RESPONSES)
