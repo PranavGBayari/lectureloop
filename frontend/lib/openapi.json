@@ -1,0 +1,2227 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LectureLoop API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions": {
+      "post": {
+        "summary": "Create Session",
+        "operationId": "create_session_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateSessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}": {
+      "get": {
+        "summary": "Get Session",
+        "operationId": "get_session_sessions__session_id__get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionPublic"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/slides": {
+      "post": {
+        "summary": "Upload Slides",
+        "operationId": "upload_slides_sessions__session_id__slides_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_slides_sessions__session_id__slides_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlidesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/transcript": {
+      "post": {
+        "summary": "Add Transcript",
+        "operationId": "add_transcript_sessions__session_id__transcript_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TranscriptRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranscriptResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/replay": {
+      "post": {
+        "summary": "Start Replay",
+        "operationId": "start_replay_sessions__session_id__replay_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      },
+      "get": {
+        "summary": "Replay Get",
+        "operationId": "replay_get_sessions__session_id__replay_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/replay/speed": {
+      "post": {
+        "summary": "Replay Speed",
+        "operationId": "replay_speed_sessions__session_id__replay_speed_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaySpeedRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/replay/pause": {
+      "post": {
+        "summary": "Replay Pause",
+        "description": "Pause; POST /replay again to resume.",
+        "operationId": "replay_pause_sessions__session_id__replay_pause_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/end": {
+      "post": {
+        "summary": "End Session",
+        "operationId": "end_session_sessions__session_id__end_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionPublic"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/join": {
+      "post": {
+        "summary": "Join",
+        "operationId": "join_join_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JoinResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/dashboard": {
+      "get": {
+        "summary": "Dashboard",
+        "operationId": "dashboard_sessions__session_id__dashboard_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/ops": {
+      "get": {
+        "summary": "Ops",
+        "description": "Observability: guardrail counts, latency, tokens, red-team pass rate and the review queue.",
+        "operationId": "ops_sessions__session_id__ops_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/sessions/{session_id}/escalations": {
+      "get": {
+        "summary": "List Escalations",
+        "operationId": "list_escalations_sessions__session_id__escalations_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Escalation"
+                  },
+                  "title": "Response List Escalations Sessions  Session Id  Escalations Get"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    },
+    "/escalations/{escalation_id}/resolve": {
+      "post": {
+        "summary": "Resolve Escalation",
+        "operationId": "resolve_escalation_escalations__escalation_id__resolve_post",
+        "parameters": [
+          {
+            "name": "escalation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Escalation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveEscalationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Escalation"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_upload_slides_sessions__session_id__slides_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_slides_sessions__session_id__slides_post"
+      },
+      "CreateSessionRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "CreateSessionRequest"
+      },
+      "CreateSessionResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "join_code": {
+            "type": "string",
+            "title": "Join Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "join_code"
+        ],
+        "title": "CreateSessionResponse"
+      },
+      "DashboardResponse": {
+        "properties": {
+          "session": {
+            "$ref": "#/components/schemas/SessionPublic"
+          },
+          "concepts": {
+            "items": {
+              "$ref": "#/components/schemas/HeatmapConcept"
+            },
+            "type": "array",
+            "title": "Concepts"
+          },
+          "n_students": {
+            "type": "integer",
+            "title": "N Students"
+          },
+          "modes": {
+            "$ref": "#/components/schemas/ModeCounts"
+          },
+          "room_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Room Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session",
+          "concepts",
+          "n_students"
+        ],
+        "title": "DashboardResponse"
+      },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody"
+      },
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "invalid_input",
+          "blocked_input",
+          "llm_timeout",
+          "llm_bad_output",
+          "not_found"
+        ],
+        "title": "ErrorCode"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse"
+      },
+      "Escalation": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EscalationType"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EscalationStatus",
+            "default": "open"
+          },
+          "resolved_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Resolved By"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "session_id",
+          "type",
+          "payload",
+          "status",
+          "resolved_by",
+          "created_at"
+        ],
+        "title": "Escalation",
+        "type": "object"
+      },
+      "EscalationStatus": {
+        "enum": [
+          "open",
+          "approved",
+          "dismissed",
+          "overridden"
+        ],
+        "title": "EscalationStatus",
+        "type": "string"
+      },
+      "EscalationType": {
+        "enum": [
+          "weak_concept",
+          "low_confidence_grade",
+          "injection",
+          "impasse"
+        ],
+        "title": "EscalationType",
+        "type": "string"
+      },
+      "GuardrailStat": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "checks": {
+            "type": "integer",
+            "title": "Checks"
+          },
+          "triggered": {
+            "type": "integer",
+            "title": "Triggered"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "checks",
+          "triggered"
+        ],
+        "title": "GuardrailStat"
+      },
+      "HeatmapConcept": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "avg_mastery": {
+            "title": "Avg Mastery",
+            "type": "number"
+          },
+          "n_active": {
+            "title": "N Active",
+            "type": "integer"
+          },
+          "top_misconception": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Top Misconception"
+          },
+          "n_answers": {
+            "default": 0,
+            "title": "N Answers",
+            "type": "integer"
+          },
+          "n_struggling": {
+            "default": 0,
+            "title": "N Struggling",
+            "type": "integer"
+          },
+          "misconceptions": {
+            "items": {
+              "$ref": "#/components/schemas/MisconceptionCount"
+            },
+            "title": "Misconceptions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "avg_mastery",
+          "n_active",
+          "top_misconception",
+          "n_answers",
+          "n_struggling",
+          "misconceptions"
+        ],
+        "title": "HeatmapConcept",
+        "type": "object"
+      },
+      "JoinRequest": {
+        "properties": {
+          "join_code": {
+            "type": "string",
+            "maxLength": 12,
+            "minLength": 4,
+            "title": "Join Code"
+          },
+          "nickname": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Nickname"
+          }
+        },
+        "type": "object",
+        "required": [
+          "join_code",
+          "nickname"
+        ],
+        "title": "JoinRequest"
+      },
+      "JoinResponse": {
+        "properties": {
+          "student_id": {
+            "type": "string",
+            "title": "Student Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "student_id",
+          "session_id"
+        ],
+        "title": "JoinResponse"
+      },
+      "LatencyStat": {
+        "properties": {
+          "agent": {
+            "type": "string",
+            "title": "Agent"
+          },
+          "calls": {
+            "type": "integer",
+            "title": "Calls"
+          },
+          "p50_ms": {
+            "type": "integer",
+            "title": "P50 Ms"
+          },
+          "p95_ms": {
+            "type": "integer",
+            "title": "P95 Ms"
+          },
+          "tokens_in": {
+            "type": "integer",
+            "title": "Tokens In"
+          },
+          "tokens_out": {
+            "type": "integer",
+            "title": "Tokens Out"
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent",
+          "calls",
+          "p50_ms",
+          "p95_ms",
+          "tokens_in",
+          "tokens_out"
+        ],
+        "title": "LatencyStat"
+      },
+      "MisconceptionCount": {
+        "properties": {
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "text",
+          "count"
+        ],
+        "title": "MisconceptionCount",
+        "type": "object"
+      },
+      "ModeCounts": {
+        "properties": {
+          "normal": {
+            "default": 0,
+            "title": "Normal",
+            "type": "integer"
+          },
+          "support": {
+            "default": 0,
+            "title": "Support",
+            "type": "integer"
+          },
+          "challenge": {
+            "default": 0,
+            "title": "Challenge",
+            "type": "integer"
+          }
+        },
+        "title": "ModeCounts",
+        "type": "object",
+        "required": [
+          "normal",
+          "support",
+          "challenge"
+        ]
+      },
+      "OpsResponse": {
+        "properties": {
+          "guardrails": {
+            "items": {
+              "$ref": "#/components/schemas/GuardrailStat"
+            },
+            "type": "array",
+            "title": "Guardrails"
+          },
+          "latency": {
+            "items": {
+              "$ref": "#/components/schemas/LatencyStat"
+            },
+            "type": "array",
+            "title": "Latency"
+          },
+          "confidence_histogram": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Confidence Histogram"
+          },
+          "n_answers": {
+            "type": "integer",
+            "title": "N Answers"
+          },
+          "n_blocked": {
+            "type": "integer",
+            "title": "N Blocked"
+          },
+          "llm_calls": {
+            "type": "integer",
+            "title": "Llm Calls"
+          },
+          "tokens_per_turn": {
+            "type": "number",
+            "title": "Tokens Per Turn"
+          },
+          "redteam": {
+            "$ref": "#/components/schemas/RedteamReport"
+          },
+          "escalations": {
+            "items": {
+              "$ref": "#/components/schemas/Escalation"
+            },
+            "type": "array",
+            "title": "Escalations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "guardrails",
+          "latency",
+          "confidence_histogram",
+          "n_answers",
+          "n_blocked",
+          "llm_calls",
+          "tokens_per_turn",
+          "redteam",
+          "escalations"
+        ],
+        "title": "OpsResponse",
+        "description": "Observability: everything is an aggregate over this session's event log."
+      },
+      "RedteamCase": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "expect": {
+            "type": "string",
+            "title": "Expect"
+          },
+          "got": {
+            "type": "string",
+            "title": "Got"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "expect",
+          "got",
+          "passed"
+        ],
+        "title": "RedteamCase"
+      },
+      "RedteamReport": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "passed": {
+            "type": "integer",
+            "title": "Passed"
+          },
+          "rate": {
+            "type": "number",
+            "title": "Rate"
+          },
+          "cases": {
+            "items": {
+              "$ref": "#/components/schemas/RedteamCase"
+            },
+            "type": "array",
+            "title": "Cases"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "passed",
+          "rate",
+          "cases"
+        ],
+        "title": "RedteamReport"
+      },
+      "ReplayRequest": {
+        "properties": {
+          "speed": {
+            "type": "number",
+            "maximum": 8.0,
+            "minimum": 0.5,
+            "title": "Speed",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "title": "ReplayRequest"
+      },
+      "ReplaySpeedRequest": {
+        "properties": {
+          "speed": {
+            "type": "number",
+            "maximum": 8.0,
+            "minimum": 0.5,
+            "title": "Speed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "speed"
+        ],
+        "title": "ReplaySpeedRequest"
+      },
+      "ReplayStatus": {
+        "properties": {
+          "running": {
+            "type": "boolean",
+            "title": "Running"
+          },
+          "speed": {
+            "type": "number",
+            "title": "Speed"
+          },
+          "position_s": {
+            "type": "number",
+            "title": "Position S"
+          },
+          "duration_s": {
+            "type": "number",
+            "title": "Duration S"
+          }
+        },
+        "type": "object",
+        "required": [
+          "running",
+          "speed",
+          "position_s",
+          "duration_s"
+        ],
+        "title": "ReplayStatus"
+      },
+      "ResolveEscalationRequest": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "dismiss",
+              "override",
+              "edit"
+            ],
+            "title": "Action"
+          },
+          "edit": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edit"
+          },
+          "verdict": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Verdict"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "ResolveEscalationRequest"
+      },
+      "SessionPublic": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "join_code": {
+            "type": "string",
+            "title": "Join Code"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SessionStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "join_code",
+          "status"
+        ],
+        "title": "SessionPublic"
+      },
+      "SessionStatus": {
+        "type": "string",
+        "enum": [
+          "live",
+          "ended"
+        ],
+        "title": "SessionStatus"
+      },
+      "SlidesResponse": {
+        "properties": {
+          "pages": {
+            "type": "integer",
+            "title": "Pages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pages"
+        ],
+        "title": "SlidesResponse"
+      },
+      "TranscriptChunkIn": {
+        "properties": {
+          "t_start": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "T Start"
+          },
+          "t_end": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "T End"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "t_start",
+          "t_end",
+          "text"
+        ],
+        "title": "TranscriptChunkIn"
+      },
+      "TranscriptRequest": {
+        "properties": {
+          "chunks": {
+            "items": {
+              "$ref": "#/components/schemas/TranscriptChunkIn"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Chunks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chunks"
+        ],
+        "title": "TranscriptRequest"
+      },
+      "TranscriptResponse": {
+        "properties": {
+          "accepted": {
+            "type": "integer",
+            "title": "Accepted"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted"
+        ],
+        "title": "TranscriptResponse"
+      },
+      "Verdict": {
+        "enum": [
+          "correct",
+          "partial",
+          "wrong"
+        ],
+        "title": "Verdict",
+        "type": "string"
+      },
+      "WSMessage": {
+        "properties": {
+          "type": {
+            "enum": [
+              "concept_opened",
+              "concept_closed",
+              "question",
+              "feedback",
+              "feedback_delta",
+              "hint",
+              "trace_back",
+              "recap",
+              "status",
+              "room_score",
+              "answer",
+              "hint_request",
+              "set_ready",
+              "heatmap",
+              "escalation",
+              "replay_status",
+              "push_recap",
+              "error",
+              "ping",
+              "pong"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          },
+          "ts": {
+            "title": "Ts",
+            "type": "number"
+          }
+        },
+        "required": [
+          "type",
+          "payload",
+          "ts"
+        ],
+        "title": "WSMessage",
+        "type": "object"
+      },
+      "QuestionOut": {
+        "description": "What a student sees. Never includes rubric, hints or source internals.",
+        "properties": {
+          "question_id": {
+            "title": "Question Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "difficulty": {
+            "title": "Difficulty",
+            "type": "integer"
+          },
+          "concept_id": {
+            "title": "Concept Id",
+            "type": "string"
+          },
+          "hints_available": {
+            "title": "Hints Available",
+            "type": "integer"
+          },
+          "source_quote": {
+            "title": "Source Quote",
+            "type": "string"
+          },
+          "source_t": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source T"
+          }
+        },
+        "required": [
+          "question_id",
+          "text",
+          "difficulty",
+          "concept_id",
+          "hints_available",
+          "source_quote",
+          "source_t"
+        ],
+        "title": "QuestionOut",
+        "type": "object"
+      },
+      "AnswerIn": {
+        "additionalProperties": false,
+        "properties": {
+          "question_id": {
+            "title": "Question Id",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id",
+          "text"
+        ],
+        "title": "AnswerIn",
+        "type": "object"
+      },
+      "HintRequestIn": {
+        "additionalProperties": false,
+        "properties": {
+          "question_id": {
+            "title": "Question Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id"
+        ],
+        "title": "HintRequestIn",
+        "type": "object"
+      },
+      "Mode": {
+        "enum": [
+          "normal",
+          "support",
+          "challenge"
+        ],
+        "title": "Mode",
+        "type": "string"
+      },
+      "NextMove": {
+        "enum": [
+          "ask_followup",
+          "give_hint",
+          "trace_back",
+          "advance",
+          "retry"
+        ],
+        "title": "NextMove",
+        "type": "string"
+      },
+      "FeedbackOut": {
+        "properties": {
+          "verdict": {
+            "$ref": "#/components/schemas/Verdict"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "mastery": {
+            "title": "Mastery",
+            "type": "number"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/Mode"
+          },
+          "next": {
+            "$ref": "#/components/schemas/NextMove"
+          },
+          "lecture_t": {
+            "default": 0.0,
+            "title": "Lecture T",
+            "type": "number"
+          },
+          "blocked": {
+            "default": false,
+            "title": "Blocked",
+            "type": "boolean"
+          },
+          "reviewed": {
+            "default": false,
+            "title": "Reviewed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "verdict",
+          "message",
+          "mastery",
+          "mode",
+          "next",
+          "lecture_t",
+          "blocked",
+          "reviewed"
+        ],
+        "title": "FeedbackOut",
+        "type": "object"
+      },
+      "HintOut": {
+        "properties": {
+          "level": {
+            "title": "Level",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "text"
+        ],
+        "title": "HintOut",
+        "type": "object"
+      },
+      "TraceBackOut": {
+        "properties": {
+          "from_concept": {
+            "title": "From Concept",
+            "type": "string"
+          },
+          "to_concept": {
+            "title": "To Concept",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from_concept",
+          "to_concept",
+          "message"
+        ],
+        "title": "TraceBackOut",
+        "type": "object"
+      },
+      "PushRecapIn": {
+        "additionalProperties": false,
+        "properties": {
+          "concept_id": {
+            "title": "Concept Id",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "concept_id",
+          "text"
+        ],
+        "title": "PushRecapIn",
+        "type": "object"
+      },
+      "SetReadyIn": {
+        "additionalProperties": false,
+        "properties": {
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ready"
+        ],
+        "title": "SetReadyIn",
+        "type": "object"
+      },
+      "Concept": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "session_id": {
+            "title": "Session Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "t_start": {
+            "title": "T Start",
+            "type": "number"
+          },
+          "t_end": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "T End"
+          },
+          "source_chunk_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Source Chunk Ids",
+            "type": "array"
+          },
+          "prereq_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Prereq Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "session_id",
+          "name",
+          "summary",
+          "t_start",
+          "t_end",
+          "source_chunk_ids",
+          "prereq_ids"
+        ],
+        "title": "Concept",
+        "type": "object"
+      },
+      "StudentStatusOut": {
+        "description": "Sent on connect and whenever mode/mastery/ready change, so a refresh restores state.",
+        "properties": {
+          "nickname": {
+            "title": "Nickname",
+            "type": "string"
+          },
+          "mode": {
+            "$ref": "#/components/schemas/Mode"
+          },
+          "ready": {
+            "title": "Ready",
+            "type": "boolean"
+          },
+          "concepts": {
+            "items": {
+              "$ref": "#/components/schemas/Concept"
+            },
+            "title": "Concepts",
+            "type": "array"
+          },
+          "mastery": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Mastery",
+            "type": "object"
+          }
+        },
+        "required": [
+          "nickname",
+          "mode",
+          "ready",
+          "concepts",
+          "mastery"
+        ],
+        "title": "StudentStatusOut",
+        "type": "object"
+      },
+      "RecapOut": {
+        "description": "A lecturer-approved recap, sent to every student.",
+        "properties": {
+          "concept_id": {
+            "title": "Concept Id",
+            "type": "string"
+          },
+          "concept_name": {
+            "title": "Concept Name",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "concept_id",
+          "concept_name",
+          "text"
+        ],
+        "title": "RecapOut",
+        "type": "object"
+      },
+      "RoomScoreOut": {
+        "description": "Class challenge: one score for the whole room, never a leaderboard.",
+        "properties": {
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "concepts": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Concepts",
+            "type": "object"
+          }
+        },
+        "required": [
+          "score",
+          "concepts"
+        ],
+        "title": "RoomScoreOut",
+        "type": "object"
+      }
+    }
+  }
+}

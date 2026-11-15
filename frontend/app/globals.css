@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* LectureLoop palette (Figma file "AI_hack"): dark, teal-led, one warm and one cool accent. */
+  --color-ink: #0e1a24;
+  --color-panel: #15253a;
+  --color-raised: #1b2e45;
+  --color-line: #23374f;
+  --color-fg: #e6eef5;
+  --color-muted: #8ba3b8;
+  --color-teal: #5eead4;
+  --color-teal-deep: #173b3d;
+  --color-amber: #f5c26b;
+  --color-periwinkle: #a5b4fc;
+  --color-coral: #ff8a7a;
+  --color-coral-deep: #2c2b37;
+  --font-ui: var(--font-inter);
+  --font-code: var(--font-jetbrains-mono);
+}
+
+body {
+  background: #0e1a24;
+  color: #e6eef5;
+}
+
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}

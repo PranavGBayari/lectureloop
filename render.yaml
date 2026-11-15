@@ -1,0 +1,24 @@
+# Render blueprint for the backend. The frontend goes on Vercel (root directory: frontend).
+# See README "Deploy". Secrets are entered in the Render dashboard, never committed.
+services:
+  - type: web
+    name: lectureloop-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    plan: starter          # a free instance sleeps, which drops every WebSocket mid-lecture
+    numInstances: 1        # lecture state is in process memory: do not scale out
+    healthCheckPath: /health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: MONGODB_URI   # MongoDB Atlas connection string; leave unset for in-memory
+        sync: false
+      - key: CORS_ORIGINS  # the Vercel URL, e.g. https://lectureloop.vercel.app
+        sync: false
+      - key: MODEL_SMART
+        value: claude-sonnet-5-5
+      - key: MODEL_FAST
+        value: claude-haiku-5-5
+      - key: LLM_PROVIDER
+        value: anthropic

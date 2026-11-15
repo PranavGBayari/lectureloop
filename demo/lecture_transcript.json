@@ -1,0 +1,27 @@
+{
+  "title": "Functors and Applicatives (COMP40009, Lecture 14)",
+  "slides_text": [
+    "Type constructors and kinds. Int :: *. Maybe :: * -> *. Either :: * -> * -> *. A type constructor needs type arguments before it becomes a type.",
+    "The Functor class. class Functor f where fmap :: (a -> b) -> f a -> f b. f must have kind * -> *.",
+    "Functor laws. Identity: fmap id = id. Composition: fmap (g . h) = fmap g . fmap h. Laws mean fmap preserves structure.",
+    "Applicative. class Functor f => Applicative f where pure :: a -> f a; (<*>) :: f (a -> b) -> f a -> f b. Apply a wrapped function to a wrapped value."
+  ],
+  "chunks": [
+    {"t_start": 0, "t_end": 11, "text": "Right, let's get going. Before we can talk about functors we need to be precise about something we've been glossing over, which is the difference between a type and a type constructor."},
+    {"t_start": 11, "t_end": 22, "text": "Int is a type. Bool is a type. You can have a value of type Int. But Maybe on its own is not a type. There is no value whose type is just Maybe."},
+    {"t_start": 22, "t_end": 34, "text": "Maybe is a type constructor. You have to give it a type argument before you get a real type. Maybe Int is a type, Maybe Bool is a type, but Maybe by itself is waiting for an argument."},
+    {"t_start": 34, "t_end": 46, "text": "We describe this with kinds. Kinds are the types of types. Int has kind star. Maybe has kind star to star, because it takes one type and gives you back a type. Either has kind star to star to star, it needs two."},
+    {"t_start": 46, "t_end": 57, "text": "Hold on to that, because it matters right now. Here is the Functor type class. class Functor f where fmap has type a to b, to f a, to f b."},
+    {"t_start": 57, "t_end": 69, "text": "Look at where f appears: f a and f b. So f is applied to a type. That means f must be a type constructor of kind star to star. That is why Maybe can be a Functor but Int cannot."},
+    {"t_start": 69, "t_end": 81, "text": "So what does fmap do? It takes an ordinary function from a to b and lifts it to work inside the structure. For lists, fmap is just map. It applies the function to every element and leaves the structure alone."},
+    {"t_start": 81, "t_end": 94, "text": "For Maybe, fmap applies the function if there is a Just, and if you have Nothing you get Nothing back. Same idea: change the values inside, never the shape around them."},
+    {"t_start": 94, "t_end": 106, "text": "Now, I keep saying never the shape. That is not just a convention, it is enforced by the functor laws. Every lawful Functor instance has to satisfy two equations."},
+    {"t_start": 106, "t_end": 118, "text": "The first is the identity law: fmap id equals id. If you map the identity function over a structure, you must get exactly the same structure back. Same length list, same Just or Nothing."},
+    {"t_start": 118, "t_end": 130, "text": "The second is the composition law: fmap of g composed with h equals fmap g composed with fmap h. Mapping twice is the same as mapping once with the composed function."},
+    {"t_start": 130, "t_end": 142, "text": "Together these laws mean fmap preserves structure. An fmap that reversed the list, or dropped the first element, would break the identity law, so it is not a valid functor instance, even if it type checks."},
+    {"t_start": 142, "t_end": 154, "text": "OK. Functors have a limitation. fmap takes a plain function. But what if the function itself is inside the structure? What if you have Just of plus three and Just of four?"},
+    {"t_start": 154, "t_end": 166, "text": "That is what Applicative is for. Applicative is a subclass of Functor with two operations: pure, which takes a value and wraps it in a minimal structure, and the apply operator, written angle star angle."},
+    {"t_start": 166, "t_end": 178, "text": "Apply has type f of a to b, to f a, to f b. It applies a wrapped function to a wrapped value. So Just plus three apply Just four gives Just seven, and if either side is Nothing you get Nothing."},
+    {"t_start": 178, "t_end": 190, "text": "And notice f has to be a type constructor again, star to star, which is why every Applicative must first be a Functor. That is enough for today, next time we will see why this lets us combine independent effects."}
+  ]
+}

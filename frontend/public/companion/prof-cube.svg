@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="175" viewBox="0 0 160 175" role="img" aria-label="Prof. Cube">
+  <!-- Front view of the 3D Prof. Cube rig (40 px per unit), used when WebGL is unavailable. -->
+  <g fill="#a5b4fc"><rect x="60.4" y="134" width="16.8" height="16.8"/><rect x="60.4" y="153.2" width="16.8" height="16.8"/><rect x="82.8" y="134" width="16.8" height="16.8"/><rect x="82.8" y="153.2" width="16.8" height="16.8"/></g>
+  <g fill="#5eead4"><rect x="60" y="109.6" width="40" height="22"/><rect x="58" y="83.2" width="44" height="24"/><rect x="41.2" y="88.8" width="14.4" height="14.4"/><rect x="104.4" y="88.8" width="14.4" height="14.4"/></g>
+  <g fill="#e6eef5"><rect x="41.2" y="105.6" width="14.4" height="14.4"/><rect x="104.4" y="105.6" width="14.4" height="14.4"/><rect x="55" y="30.8" width="50" height="50"/></g>
+  <rect x="110" y="117.6" width="3.2" height="16.8" fill="#ffffff"/>
+  <g fill="#0e1a24"><rect x="66.8" y="48" width="6.4" height="8"/><rect x="86.8" y="48" width="6.4" height="8"/><rect x="74" y="64.2" width="12" height="2.8"/><rect x="70.8" y="61.8" width="3.2" height="2.8"/><rect x="86" y="61.8" width="3.2" height="2.8"/></g>
+  <g fill="#15253a" stroke="#8ba3b8" stroke-width="0.8"><rect x="50" y="27.6" width="60" height="3.2"/><rect x="76" y="19.6" width="8" height="8"/></g>
+  <g fill="#f5c26b"><rect x="107" y="31" width="3.6" height="3.6"/><rect x="107" y="35.4" width="3.6" height="3.6"/><rect x="107" y="39.8" width="3.6" height="3.6"/></g>
+</svg>
