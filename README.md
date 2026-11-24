@@ -1,17 +1,81 @@
 # LectureLoop
 
-The lecture listens back. A live lecture companion that turns what the lecturer just said into
-adaptive, grounded questions for each student, and shows the lecturer which concepts the room is
-weak on. The full spec is in [Plan.md](Plan.md); the pitch outline and demo runbook are in
+**The lecture listens back.** A live lecture companion that turns what the lecturer just said into
+an adaptive, grounded question for each student, and shows the lecturer which concepts the room is
+stuck on, while there is still time to fix it.
+
+Live demo: **[lectureloop-sage.vercel.app](https://lectureloop-sage.vercel.app)** · Built solo for
+[Imperial AI Hack](https://studentclash.reply.com/challenges/AI_on_Campus_LONDON.html#overview)
+(Nov 2026), Reply Student Tech Clash "AI on Campus" track.
+
+## The problem
+
+In a 300-seat lecture, a student who gets lost at minute 12 stays lost for the next 40 minutes, and
+the lecturer only finds out at the exam. Polls like Mentimeter or Slido ask everyone the same
+pre-written question, and shy students never ask at all.
+
+## What it does
+
+- **Follows the lecture live.** Speech is transcribed in real time (ElevenLabs Scribe, or the
+  browser's Web Speech API as a fallback) and split into concepts as the lecturer finishes them.
+- **Asks each student one question per concept**, written from what was just said. Every question
+  quotes the transcript span or slide it came from: no source, no question.
+- **Grades and adapts.** Wrong answers get a hint from a three-step ladder (never the answer), and
+  mistakes are traced back to the earlier concept where the gap actually is. A Bayesian Knowledge
+  Tracing model tracks mastery and switches a student into support mode when they need it.
+- **Gives the lecturer a live heatmap** of weak and strong concepts, aggregate only, with a
+  suggested 60-second recap they can edit and push to every student in one tap.
+- **Keeps a human in the loop.** Low-confidence grades go to a TA review queue.
+
+## How it works
+
+```
+transcript chunks -> segmenter -> concepts -> question writer -> student
+student answer -> guardrails -> grader -> mastery (BKT) -> next move (in code) -> tutor -> student
+every 2 s: aggregate mastery -> lecturer heatmap -> insight agent -> suggested recap
+```
+
+- **One supervisor, five agents.** A plain async loop in Python orchestrates five Claude-powered
+  agents: segmenter, question writer, grader, tutor and insight. The model never picks the
+  student's mode or next move; that logic is deterministic code.
+- **Guardrails in code, not just prompts.** Prompt-injection filter, answer-leak checker on every
+  tutor message, grounding check on every question, and schema validation on every model output,
+  with retries and fallbacks. A red-team suite of 24 injection and answer-leak attempts runs
+  against them, with a 90% pass gate.
+- **Cost-aware.** The first question for each concept is shared per mode, so a room of 250
+  students costs three model calls, not 250.
+- **Real-time.** FastAPI WebSockets push questions to students and live aggregates to the lecturer.
+
+## Tech stack
+
+| Layer | Tools |
+| --- | --- |
+| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS, three.js / React Three Fiber (3D tutor avatar) |
+| Backend | Python 3.12, FastAPI, WebSockets, Pydantic, MongoDB (Motor) with an in-memory fallback |
+| AI | Claude Sonnet (question writing, tutoring), Claude Haiku (fast grading, injection classifier), ElevenLabs Scribe (live speech-to-text) |
+| Quality | pytest (36 tests), red-team harness, typed API client generated from the OpenAPI schema |
+| Deploy | Vercel (frontend + backend services), Docker / Render config as an alternative |
+
+## Quick start
+
+```bash
+cp .env.example .env      # set ANTHROPIC_API_KEY, or LLM_PROVIDER=fake to run fully offline
+npm run setup && npm install
+npm run dev               # backend on :8000, frontend on :3000
+```
+
+Open `localhost:3000/l` to start a lecture, join from a second window at `localhost:3000`, then
+press **Start demo replay** to play a 3-minute Haskell lecture on functors. Full details are in the
+developer guide below.
+
+The original build spec is in [Plan.md](Plan.md) and the pitch and demo script are in
 [PITCH.md](PITCH.md).
 
-**Status: feature complete (Phases 1-6).** What is left needs people rather than code: deploying
-with the team's accounts, recording the backup video, slides and rehearsals. One thing has never
-been exercised: the real Claude models. Everything was built and tested against the scripted
-offline model (`LLM_PROVIDER=fake`) because no API key was available. Do a full run with a key
-before the demo; see "Before the demo" below.
+---
 
-## Run it
+## Developer guide
+
+### Run it
 
 Prerequisites: [uv](https://docs.astral.sh/uv/) and Node 20+. uv downloads Python 3.12 itself.
 
@@ -32,7 +96,7 @@ cd backend && uv run uvicorn app.main:app --reload
 cd frontend && npm run dev
 ```
 
-### The demo, end to end
+#### The demo, end to end
 
 1. Open http://localhost:3000/l, create a session, and note the join code.
 2. In a second (narrow) window, open http://localhost:3000 and join with the code and a nickname.
@@ -52,7 +116,7 @@ Live mode: instead of the replay, press **Go live** in the lecturer footer and t
 shows the engine in use, "ElevenLabs" or "browser", next to the LIVE indicator, and your words as they
 are spoken. **Slides** uploads a PDF whose text grounds the questions alongside the transcript.
 
-### Live transcription engines
+#### Live transcription engines
 
 | Engine | When | Notes |
 | --- | --- | --- |
@@ -66,13 +130,13 @@ reported once and not retried. Words are committed after a one-second pause, or 
 the lecturer never pauses. For regional data residency, set `NEXT_PUBLIC_ELEVENLABS_WS_URL` on the
 frontend (for example `wss://api.eu.residency.elevenlabs.io`) and use a key from that region.
 
-### Offline mode
+#### Offline mode
 
 `LLM_PROVIDER=fake` (in `.env`, or `$env:LLM_PROVIDER="fake"` before `npm run dev`) swaps Claude
 for a scripted model that knows the demo lecture and grades by keyword. Use it for UI work and
 tests; it is not a substitute for the real demo. `GET /health` shows which one is active.
 
-## Tests
+### Tests
 
 ```bash
 npm test                                  # = cd backend && uv run pytest -q   (36 tests)
@@ -82,7 +146,7 @@ cd backend && uv run python -m app.redteam   # the red-team table on its own
 `backend/app/data/redteam.jsonl` holds 24 injection and answer-leak attempts (plus honest answers that must
 not be blocked). The gate is 90%; the same pass rate is shown on the ops page.
 
-## Layout
+### Layout
 
 ```
 backend/app/
@@ -117,18 +181,18 @@ demo/
 
 After changing `models.py`, regenerate the frontend types: `npm run gen:types`.
 
-## Environment
+### Environment
 
 See [.env.example](.env.example). `MONGODB_URI` empty means in-memory. If it is set but
 unreachable, the backend logs a warning and falls back to memory.
 
-## Deploy
+### Deploy
 
-Not done yet; it needs the team's accounts. Two configurations are ready. Read "Vercel limits"
+Two configurations are ready. Read "Vercel limits"
 before choosing: the app keeps live lecture state in process memory, which suits one long-running
 server better than serverless functions.
 
-### Option A: everything on Vercel (Vercel Services)
+#### Option A: everything on Vercel (Vercel Services)
 
 `vercel.json` deploys one project with two services on one domain:
 
@@ -181,7 +245,7 @@ and says why, instead of failing later with "not found".
   the CLI detecting both services. The routing was checked with a stand-in proxy that leaves `/api`
   on, as Vercel does.
 
-### Option B: backend on Render, frontend on Vercel (or elsewhere)
+#### Option B: backend on Render, frontend on Vercel (or elsewhere)
 
 - **Backend on Render:** `render.yaml` + `Dockerfile.render` (build context is the repo root). Set
   `ANTHROPIC_API_KEY`, `MONGODB_URI` (Atlas), optionally `ELEVENLABS_API_KEY`, and `CORS_ORIGINS`
@@ -193,22 +257,7 @@ and says why, instead of failing later with "not found".
 - Neither Dockerfile has been built: Docker was not available. Build once locally before relying
   on it, and keep the local run as the backup, as the plan says.
 
-## Before the demo
-
-1. Put a real `ANTHROPIC_API_KEY` in `.env`, set `LLM_PROVIDER=anthropic`, and run the whole demo
-   script once. The prompts, the segmenter's boundaries on the demo lecture, real latency, the
-   insight recap and the two Haiku classifiers have only ever run against the scripted model.
-2. Run `cd backend && uv run python -m app.redteam` with the key set. With real Haiku the
-   borderline cases are judged by the model, so the pass rate may differ from the scripted 24/24.
-3. Put an `ELEVENLABS_API_KEY` in `.env`, press **Go live**, and check that the footer says
-   "ElevenLabs" and your words appear. The SDK's current docs mention a newer model id,
-   `scribe_v3_live`; the installed SDK (1.22.1) only knows `scribe_v2_realtime`, which is what this
-   uses (`SCRIBE_MODEL` in `frontend/lib/useScribeTranscript.ts`). If your account has access to
-   the newer model, upgrading `@elevenlabs/react` and changing that constant is the whole change.
-4. Check the microphone in the room you will present in. Without ElevenLabs it needs Chrome or Edge
-   and a network connection.
-
-## Known gaps
+### Known gaps
 
 - The plan's fallback to slide-based questions when transcription drops is not built.
 - ElevenLabs live transcription has never talked to the real ElevenLabs service (no key was
